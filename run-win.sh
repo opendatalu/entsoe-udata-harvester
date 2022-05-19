@@ -1,0 +1,1 @@
+node.exe --experimental-specifier-resolution=node daily.js >> ./log.txt 2>&1
