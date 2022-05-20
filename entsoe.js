@@ -22,6 +22,7 @@ async function getXMLFromEntsoe(params) {
             },
             "method": "GET"
         })
+        // if there is an error in a request, the API will answer 4xx in most cases (when no data is found 200 is given)
         if (!res.ok) {
             res.text().then(t => { throw t})
         }
