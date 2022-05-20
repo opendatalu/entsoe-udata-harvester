@@ -1,24 +1,32 @@
-
-import { formatWithOptions, subDays, addDays, startOfDay} from 'date-fns/fp'
+import { formatWithOptions, subDays, addDays, startOfDay, startOfYear} from 'date-fns/fp'
 import { enGB } from 'date-fns/locale'
 import { countries, biddingZones, getXMLFromEntsoe } from './entsoe.js'
-import { uploadXML, updateResource } from './odp.js'
+import { uploadXML, updateResource, getDataset } from './odp.js'
 
 
 const dsIds = {
     'total-load': '6284f27a82fb124fc6f2ad00',
     'actual-generation': '6284fa0782fb124fc6f2ad01', 
     'xborder-flows': '6285fca8923a137f86e0b926',
-    'day-ahead-prices': '62860455369eeb2667db8bad'
+    'day-ahead-prices': '62860455369eeb2667db8bad', 
+    'installed-capacity': '628785a3ee92243b6ff1ddf6'
 }
 
 const now = new Date()
+const year = now.getFullYear().toString()
 // dates for most of the files
 const start = subDays(1, startOfDay(now)).toISOString().replace(/:[^:]*$/, '').replace(/[-T:]/g, '')
 const dateFilename = formatWithOptions({}, 'yyyyMMdd', subDays(1, startOfDay(now)))
 const dateText = formatWithOptions({locale: enGB }, 'd MMMM yyyy', subDays(1, startOfDay(now)))
 const end = startOfDay(now).toISOString().replace(/:[^:]*$/, '').replace(/[-T:]/g, '')
 const dateParams = `periodStart=${start}&periodEnd=${end}`  
+
+// dates for installedCapacity
+const istart =  startOfYear(now).toISOString().replace(/:[^:]*$/, '').replace(/[-T:]/g, '')
+const idateFilename = formatWithOptions({}, 'yyyy', startOfDay(now))
+const iend = startOfDay(now).toISOString().replace(/:[^:]*$/, '').replace(/[-T:]/g, '')
+const idateParams = `periodStart=${istart}&periodEnd=${iend}`  
+
 
 // dates for day-ahead prices
 const dstart =  startOfDay(now).toISOString().replace(/:[^:]*$/, '').replace(/[-T:]/g, '')
@@ -31,6 +39,11 @@ const ddateParams = `periodStart=${dstart}&periodEnd=${dend}`
 // Load -> Total Load – Day Ahead / Actual -> Country -> LU -> Actual Total Load / 6.1.A
 async function getTotalLoad() {
     return getXMLFromEntsoe(`documentType=A65&processType=A16&outBiddingZone_Domain=${countries['lu']}&${dateParams}`)
+}
+
+// Generation -> Installed Capacity per Production Type -> Country -> LU 14.1.A
+async function getInstalledCapacity() {
+    return getXMLFromEntsoe(`documentType=A68&processType=A33&in_Domain=${countries['lu']}&${idateParams}`)
 }
 
 // Generation -> Actual Generation per Production Type -> Country -> LU / 16.1.B&C
@@ -53,6 +66,21 @@ async function main() {
     const load = await getTotalLoad()
     const resLoad = await uploadXML(`total-load-${dateFilename}.xml`, load, dsIds['total-load'])
     await updateResource(dsIds['total-load'], resLoad.id, `Total load - ${dateText}`, '')
+
+    const capa = await getInstalledCapacity()
+    const ds = await getDataset(dsIds['installed-capacity'])
+    const existingRes = ds.resources.filter(e => {return e.title.includes(year)})
+    if (existingRes.length == 0) {
+        // create resource
+        const resCapa = await uploadXML(`installed-capacity-${year}.xml`, capa, dsIds['installed-capacity'])
+        await updateResource(dsIds['installed-capacity'], resCapa.id, `Installed Capacity - ${year}`, '')
+    } else {
+        const resId = existingRes[0].id
+        // update resource
+        const resCapa = await uploadXML(`installed-capacity-${year}.xml`, capa, dsIds['installed-capacity'], resId)
+        await updateResource(dsIds['installed-capacity'], resId, `Installed Capacity - ${year}`, '')
+    }
+    
     const actualGeneration = await getActualGeneration()
     const resGen = await uploadXML(`actual-generation-${dateFilename}.xml`, actualGeneration, dsIds['actual-generation'])
     await updateResource(dsIds['actual-generation'], resGen.id, `Actual Generation per Production Type - ${dateText}`, '')
