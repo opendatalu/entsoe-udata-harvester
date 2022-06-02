@@ -6,11 +6,11 @@ import  { XMLParser } from 'fast-xml-parser'
 
 
 const dsIds = {
-    'total-load': '6284f27a82fb124fc6f2ad00',
-    'actual-generation': '6284fa0782fb124fc6f2ad01', 
-    'xborder-flows': '6285fca8923a137f86e0b926',
-    'day-ahead-prices': '62860455369eeb2667db8bad', 
-    'installed-capacity': '628785a3ee92243b6ff1ddf6'
+    'total-load': process.env.totalLoadId,
+    'actual-generation': process.env.actualGenerationId, 
+    'xborder-flows': process.env.xborderFlowsId,
+    'day-ahead-prices': process.env.dayAheadPricesId, 
+    'installed-capacity': process.env.installedCapacityId
 }
 
 const now = new Date()
