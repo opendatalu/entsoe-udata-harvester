@@ -3,6 +3,7 @@ import { enGB } from 'date-fns/locale'
 import { countries, biddingZones, getXMLFromEntsoe } from './entsoe.js'
 import { uploadXML, updateResource, getDataset } from './odp.js'
 import  { XMLParser } from 'fast-xml-parser'
+import process from 'node:process';
 
 
 const dsIds = {
@@ -140,4 +141,4 @@ async function main() {
     }
 }
 
-main().then(() => {console.log((new Date()).toLocaleString(), 'Sync successful')}).catch(e => {console.error(e)})
+main().then(() => {console.log((new Date()).toLocaleString(), 'Sync successful')}).catch(e => {console.error(e); process.exitCode = 1;})
