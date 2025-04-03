@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+cd "$(dirname "$0")"
 alert() {
     if command -v alert.sh 1>/dev/null; then
         alert.sh "$@"
