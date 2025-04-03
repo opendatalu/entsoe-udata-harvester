@@ -1,5 +1,5 @@
-import { formatWithOptions, subDays, addDays, startOfDay, startOfYear} from 'date-fns/fp'
-import { enGB } from 'date-fns/locale'
+import { formatWithOptions, subDays, addDays, startOfDay, startOfYear} from 'date-fns/fp/index.js'
+import { enGB } from 'date-fns/locale/index.js'
 import { countries, biddingZones, getXMLFromEntsoe } from './entsoe.js'
 import { uploadXML, updateResource, getDataset } from './odp.js'
 import  { XMLParser } from 'fast-xml-parser'

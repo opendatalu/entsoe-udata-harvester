@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "bash ./run-win.sh"
+    "start": "bash ./run.sh"
   },
   "author": "Information and Press Service",
   "license": "MIT",
@@ -15,7 +15,8 @@
     "fast-xml-parser": "^4.0.7",
     "lodash": "^4.17.21",
     "node-fetch": "^3.2.4",
-    "throttled-queue": "^2.1.2"
+    "throttled-queue": "^2.1.2",
+    "https-proxy-agent": "^7.0.6"
   },
   "type": "module"
 }
