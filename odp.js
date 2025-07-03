@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import { fetchThrottle } from './utils.js'
 import { FormData, File } from 'node-fetch'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import ProxyFromEnv from 'proxy-from-env'
 
 dotenv.config()
 
@@ -33,7 +34,7 @@ async function uploadXML(filename, data, ds_id, res_id) {
             "body": formData,
             "method": "POST"
         }
-        if (proxyAgent !== null) {
+        if (proxyAgent !== null && ProxyFromEnv.getProxyForUrl(odpURL)) {
             params.agent = proxyAgent
         }
 
@@ -60,7 +61,7 @@ async function updateResource(ds_id, res_id, title, desc) {
         "body": JSON.stringify(body),
         "method": "PUT"
     }
-    if (proxyAgent !== null) {
+    if (proxyAgent !== null && ProxyFromEnv.getProxyForUrl(odpURL)) {
         params.agent = proxyAgent
     }
 
@@ -69,7 +70,7 @@ async function updateResource(ds_id, res_id, title, desc) {
         if (!res.ok) {
             res.text().then(t => { throw t})
         }
-        return res.json()        
+        return res.json()
     } catch (e) {
         console.error(e)
         return {}
@@ -85,9 +86,9 @@ async function getDataset(id) {
         },
         "method": "GET"
     }
-    if (proxyAgent !== null) {
+    if (proxyAgent !== null && ProxyFromEnv.getProxyForUrl(odpURL)) {
         params.agent = proxyAgent
-    }    
+    }
 
     try {
         const res = await fetchThrottle(odpURL+"/datasets/"+id+"/", params)
@@ -99,7 +100,7 @@ async function getDataset(id) {
     } catch(e) {
         console.error(e)
         return {}
-    }    
+    }
 }
 
 export { uploadXML, updateResource, getDataset }

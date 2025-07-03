@@ -1,6 +1,7 @@
 import { fetchThrottle } from './utils.js'
 import dotenv from 'dotenv'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import ProxyFromEnv from 'proxy-from-env'
 
 dotenv.config()
 
@@ -16,7 +17,7 @@ const countries = {
     'de': '10Y1001A1001A83F'
 }
 
-const biddingZones = { 
+const biddingZones = {
     'de-lu': '10Y1001A1001A82H'
 }
 
@@ -28,9 +29,9 @@ async function getXMLFromEntsoe(params) {
         },
         "method": "GET"
     }
-    if (proxyAgent !== null) {
+    if (proxyAgent !== null && ProxyFromEnv.getProxyForUrl(process.env.entsoeURL)) {
         queryParams.agent = proxyAgent
-    }    
+    }
 
 
     try {
@@ -42,7 +43,7 @@ async function getXMLFromEntsoe(params) {
         return res.text()
     } catch (e) {
         console.error(e)
-        return {}        
+        return {}
     }
 }
 
